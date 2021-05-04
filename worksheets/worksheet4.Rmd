@@ -1,0 +1,43 @@
+---
+title: "worksheet4"
+author: "Sunny Lee"
+date: "2/10/2021"
+output:
+  pdf_document: default
+  html_document: default
+---
+
+1)
+a) A corr(X, Y) value of -.79 shows that X and Y are closely inversely correspondent/dependent.  
+
+b) Since the correlation coefficient is close to zero, we find that X and Y are not very dependent in this case. 
+
+c) corr(X, X) should be 1 since X should be perfectly depenedent with X. 
+
+2)
+a, b) 
+```{r}
+library("ggpubr")
+credit <- read.csv("Credit.csv")
+
+ggscatter(credit, x = "Cards", y = "Balance", add = "reg.line")
+
+```
+c)
+From the above graph, we find that Balance does seem to be correlated with Cards, and there seems to be a positive correlation. 
+
+d) 
+```{r}
+ggscatter(credit, x="Cards", y="Balance", add="reg.line", conf.int=TRUE)
+```
+
+e) 
+The shaded region does look like it could capture a line with the $\hat{\beta_1} = 0$. One such line could be $\hat{\beta_0} = 500$, which would be a straight line only at $Balance = 500$ which looks like it could be contained in the shaded region. 
+
+f)
+```{r}
+ggscatter(credit, x="Cards", y="Balance", add="reg.line", conf.int=TRUE, cor.coef=TRUE)
+```
+
+g) 
+From what we have seen above, we can conclude that Cards is not a good predictor for Balance, as the p value is very low, and the shaded region does seem to contain a line where $\hat{\beta_1} = 0$

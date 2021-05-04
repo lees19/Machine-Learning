@@ -1,0 +1,97 @@
+---
+title: "homework2"
+author: "Sunny Lee"
+date: "2/5/2021"
+output:
+  pdf_document: default
+  html_document: default
+---
+
+1)
+a)
+To fit a linear model onto balance, we can simply call the lm() command with Balance as the response and a dot to get a linear model for each of the predictors. With this, we can also call the summary function in order to get some statistics on each of the linear models. 
+```{r} 
+credit <- read.csv("Credit.csv")
+
+coeff <- c(1, 2, 3, 4, 5, 6, 7, 8, 9, 0, 1)
+
+result.income <- lm(Balance~Income, data = credit)
+result.limit <- lm(Balance~Limit, data = credit)
+result.rating <- lm(Balance~Rating, data = credit)
+result.cards <- lm(Balance~Cards, data = credit)
+result.age <- lm(Balance~Age, data = credit)
+result.education <- lm(Balance~Education, data = credit)
+result.gender <- lm(Balance~Gender, data = credit)
+result.student <- lm(Balance~Student, data = credit)
+result.married <- lm(Balance~Married, data = credit)
+result.ethnicity <- lm(Balance~Ethnicity, data = credit)
+
+coeff[1] <- result.income$coefficients[2]
+coeff[2] <- result.limit$coefficients[2]
+coeff[3] <- result.rating$coefficients[2]
+coeff[4] <- result.cards$coefficients[2]
+coeff[5] <- result.age$coefficients[2]
+coeff[6] <- result.education$coefficients[2]
+coeff[7] <- result.gender$coefficients[2]
+coeff[8] <- result.student$coefficients[2]
+coeff[9] <- result.married$coefficients[2]
+coeff[10] <- result.ethnicity$coefficients[2]
+coeff[11] <- result.ethnicity$coefficients[3]
+coeff
+```
+
+Here we can see the estimates, std error, t value and p-value for each of the predictors. Using the summary, we find that there are some predictors which have a high p-value and some which do not. The intercept, Income, Limit, StudentYes and Rating all have very low p values which would seem to suggest that they contribute to predicting the balance.
+
+```{r}
+par(mfrow = c(2, 2))
+plot(credit$Income, credit$Balance)
+plot(credit$Limit, credit$Balance)
+StudentYes <- (credit$Student == "Yes")*1
+plot(StudentYes, credit$Balance)
+plot(credit$Rating, credit$Balance)
+```
+
+With these plots, though we do not see too much of a correlation between Income and StudentYes, we see a strong correlation in Limit and Rating. 
+
+b)
+By using our multiple linear regression, we find that our p-value is quite small, which confirms the fact that can can definitely reject the null hypothesis. The predictors which have very low p values are Income, Limit, Rating, Cards, Age and StudentYes and these are what we are going to pick to reject the null hypothesis. 
+```{r}
+multifit <- lm(Balance~., data = credit)
+summary(multifit)
+```
+
+c)
+The results from (a) and (b) are somewhat different. Income, Limit, Rating and StudentYes still have low p values, however Cards and Age appear to have low p values in the multiple linear regression but rather large p values in the simple linear regression.
+```{r}
+multifit$coefficients
+plot(coeff, multifit$coefficients[3:13])
+```
+
+d)
+```{r} 
+library(car)
+vif(multifit)
+
+plot(Limit~Rating, data = credit)
+```
+
+By using the vif function from the car library, we can find the variance inflation factors of each of the predictors under multiple linear regression. Having a high amount of variance inflation is undesirable, as a small change in our data set could drastically change our $\beta_j$ for those predictors. Thus, from our vif(multifit) function above, we find most of the variables do not have very high variance inflation except for Limit and Rating. To visualize the colinearity between Rating and Limit, we plot Limit and Rating against each other. Finally, we can conclude Limit and Rating are collinear, thus we can either take either Limit or Rating out of our linear regression model, or we can combine them into one predictor. 
+
+e)
+```{r}
+polyfit.income <- lm(Balance~poly(Income, 2), data = credit)
+polyfit.limit <- lm(Balance~poly(Limit, 2), data = credit)
+polyfit.rating <- lm(Balance~poly(Rating, 2), data = credit)
+polyfit.cards <- lm(Balance~poly(Cards, 2), data = credit)
+polyfit.age <- lm(Balance~poly(Age, 2), data = credit)
+polyfit.education <- lm(Balance~poly(Education, 2), data = credit)
+
+summary(polyfit.income)
+summary(polyfit.limit)
+summary(polyfit.rating)
+summary(polyfit.cards)
+summary(polyfit.age)
+summary(polyfit.education)
+```
+
+From the summaries given above, we find that Limit and Rating have low p values for the $\beta_j$ in the polynomial terms. We might conclude that these predictors have some form of polynomial association. 

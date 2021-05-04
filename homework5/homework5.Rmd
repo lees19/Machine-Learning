@@ -1,0 +1,68 @@
+---
+title: "homework5"
+author: "Sunny Lee"
+date: "3/9/2021"
+output: pdf_document
+---
+
+1) 
+```{r}
+library("ISLR")
+library(tree)
+data("College")
+```
+
+2)
+a)
+```{r}
+train_size <- floor(.75 * nrow(College))
+set.seed(1)
+idx <- sample(seq_len(nrow(College)), size = train_size)
+train <- College[idx, ]
+test <- College[-idx, ]
+```
+
+b)
+```{r}
+tree <- tree(Grad.Rate~., College, subset = idx)
+summary(tree)
+plot(tree)
+text(tree, pretty = 0)
+
+tree.pred <- predict(tree, test)
+mean((tree.pred - test$Grad.Rate)^2)
+```
+From the summary of the tree above, we find that the tree we have obtained has 11 terminal nodes, and has used Outstate, Top10perc, P.Undergrad, Apps, Enroll, perc.alumni and Top25perc as explanatory variables. 
+
+c)
+```{r}
+cross <- cv.tree(tree)
+plot(cross$size, cross$dev, type = "b")
+plot(cross$k, cross$dev, type = "b")
+
+prune.tree <- prune.tree(tree, best = 7)
+plot(prune.tree)
+text(prune.tree, pretty = 0)
+
+prune.tree.pred <- predict(prune.tree, test)
+mean((prune.tree.pred - test$Grad.Rate)^2)
+```
+From the cross validation plot above, we see that our optimal tree size is 7 as the dev is at its lowest when the number of terminal nodes is 7. Thus, we prune our tree down to 7 terminal nodes and then calculate the MSE again with our new tree. After calculating the new MSE, we see that the pruned tree had a lower MSE than the original 11 terminal node tree.
+
+d) 
+```{r}
+library(randomForest)
+set.seed(1)
+bag.college <- randomForest(Grad.Rate~., College, subset = idx, importance = TRUE, mtry = 17)
+bag.college
+```
+
+```{r}
+yhat.bag <- predict(bag.college, newdata = College[-idx, ])
+plot(yhat.bag, College[-idx, ]$Grad.Rate)
+abline(0, 1)
+mean((yhat.bag-College[-idx, ]$Grad.Rate)^2)
+
+importance(bag.college)
+```
+After fitting our data with the bagging technique, we get an MSE which is lower than both of our previous regression trees: 167.1067. Using the importance() function, we can conclude the three most important variables in our random forest are perc.alumni, Outstate and Apps

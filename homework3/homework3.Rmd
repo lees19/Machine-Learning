@@ -1,0 +1,86 @@
+---
+title: "homework3"
+author: "Sunny Lee"
+date: "2/14/2021"
+output:
+  pdf_document: default
+---
+
+1)
+```{r}
+library("MASS")
+data("Boston")
+```
+
+2)
+```{r}
+?Boston
+```
+In this dataset, crim refers to the per capita crime rate by town. 
+
+3) 
+```{r}
+crim01 <- rep(0, length(Boston$crim))
+crim01[Boston$crim > median(Boston$crim)] <- 1
+Boston <- data.frame(Boston, crim01)
+```
+
+4)
+```{r}
+cor(Boston)
+tail(sort(abs(cor(Boston)[, 15])), 6)
+```
+Ignoring the crim01 variable, the five strongest predictors are tax, age, dis, rad, nox
+
+5) 
+```{r}
+set.seed(5492)
+v <- sort(sample(1:nrow(Boston),100)) # this creates a random selection of 100 numbers from 1 to n
+Boston.test<-Boston[v,]
+Boston.train<-Boston[-v,]
+```
+
+6)
+```{r}
+logreg.model <- glm(crim01~tax+age+dis+rad+nox, data = Boston.train, family = binomial)
+
+logreg.prob <- predict(logreg.model, Boston.test, type = "response")
+logreg.predict <- rep(0, length(logreg.prob))
+logreg.predict[logreg.prob > .5] <- 1 
+
+table(logreg.predict, Boston.test$crim01)
+mean(logreg.predict == Boston.test$crim01)
+mean(logreg.predict != Boston.test$crim01)
+```
+We find that the test error rate is 16 percent, and our test accuracy of our logisitc regression model is 84 percent
+
+7) 
+```{r}
+lda.model <- lda(crim01~tax+age+dis+rad+nox, data = Boston.train)
+lda.pred = predict(lda.model, Boston.test)
+
+lda.class <- lda.pred$class
+
+table(lda.class, Boston.test$crim01)
+mean(lda.class == Boston.test$crim01)
+mean(lda.class != Boston.test$crim01)
+```
+
+We find that the test error rate is 17 percent, and our test accuracy of our lda model is 83 percent. 
+
+8)
+```{r}
+library(class)
+set.seed(5492)
+
+train.X <- cbind(Boston.train$tax, Boston.train$age, Boston.train$dis, Boston.train$rad, Boston.train$nox)
+test.X <- cbind(Boston.test$tax, Boston.test$age, Boston.test$dis, Boston.test$rad, Boston.test$nox)
+train.Y <- Boston.train$crim01
+
+knn.pred <- knn(train.X, test.X, train.Y, k = 1)
+table(knn.pred, Boston.test$crim01)
+mean(knn.pred == Boston.test$crim01)
+mean(knn.pred != Boston.test$crim01)
+```
+
+We find that hte test error rate is 8 percent and our test accuracy of our knn model is 92 percent. 

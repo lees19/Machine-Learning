@@ -1,0 +1,26 @@
+---
+title: "examples"
+author: "Sunny Lee"
+date: "2/1/2021"
+output: pdf_document
+---
+
+```{r}
+advert = read.csv("Advertising.csv")
+
+#fix(advert)
+names(advert)
+
+plot(advert$TV, advert$sales)
+myresult = lm(sales~TV, advert)
+abline(myresult, col = "red")
+
+summary(myresult)
+```
+
+So, with our linear model and our $\beta_0, \beta_1$, we can interpret this data as for each $1000 we spend on radio, we have an increase of about 203 units of sale.
+
+```{r}
+confint(myresult) 
+```
+With this, we can say that we have a 95% confidence that the intercept is between these two values, same with the radio slope. An interval estimate with a level of confidence is more useful than a pt estimate. 

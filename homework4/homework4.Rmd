@@ -1,0 +1,118 @@
+---
+title: "homework4"
+author: "Sunny Lee"
+date: "2/23/2021"
+output: pdf_document
+---
+
+1)
+```{r}
+library("MASS")
+data("Boston")
+
+```
+
+```{r}
+data <- Boston[, c("medv","crim")]
+ 
+```
+
+2) 
+```{r}
+x <- data$medv
+y <- data$crim
+x_i <- x[-1]
+y_i <- y[-1]
+model <- lm(y_i~x_i)
+y_pred <- predict(model, data.frame(x_i = x[1])) 
+```
+
+3) 
+```{r}
+error <- (y[1]-y_pred)^2
+error
+```
+
+4) 
+```{r}
+library(boot)
+mse <- c(1:nrow(data))
+for (i in 1:nrow(data)){
+  x <- data$medv
+  y <- data$crim
+  x_i <- x[-i]
+  y_i <- y[-i]
+  model <- glm(y_i~x_i)
+  mse[i] <- (y[i] - predict(model, data.frame(x_i = x[i])))^2
+}
+
+```
+
+5) 
+```{r}
+mean(mse)
+#using boot library to check our CV
+a <- glm(crim~medv, data = data)
+cva <- cv.glm(data, a)$delta[1]
+```
+
+6)
+```{r}
+mse1 <- c(1:nrow(data))
+for (i in 1:nrow(data)){
+  x <- data$medv
+  y <- data$crim
+  x_i <- x[-i]
+  y_i <- y[-i]
+  model <- glm(y_i~poly(x_i, 2))
+  mse1[i] <- (y[i] - predict(model, data.frame(x_i = x[i])))^2
+}
+```
+
+
+For this model, we find that the $CV_{(n)}$ is 48.45057, which is much lower than it is for our previous linear regression model. 
+```{r}
+mean(mse1)
+#using boot library to check our CV
+b <- glm(crim~poly(medv, 2), data = data)
+cvb <- cv.glm(data, b)$delta[1]
+```
+7)
+```{r}
+mse2 <- c(1:nrow(data))
+for (i in 1:nrow(data)){
+  x <- data$medv
+  y <- data$crim
+  x_i <- x[-i]
+  y_i <- y[-i]
+  model <- glm(y_i~poly(x_i, 3))
+  mse2[i] <- (y[i] - predict(model, data.frame(x_i = x[i])))^2
+}
+mean(mse2)
+#using boot library to check our CV
+c <- glm(crim~poly(medv, 3), data = data)
+cvc <- cv.glm(data, c)$delta[1]
+
+```
+
+8)
+```{r}
+plot(c(cva, cvb, cvc), type = "l")
+```
+
+9)
+Looking at the graph above, we find that the polynomial regression of degree 3 had the lowest LOOCV value. By looking at the graph below: 
+```{r}
+plot(data$crim~data$medv)
+```
+
+we see the relationship between medv and crim is closer to an exponential decay, meaning we would generally see a better MSE score the higher the degree we choose.
+
+10)
+```{r}
+summary(a)
+summary(b)
+summary(c)
+```
+
+Looking at the significance of the coefficients, we find the coefficients are all very important to fitting the data for each degree polynomial. This results match what we see with the CV score, as we are adding more variables which are significant in predicting crim.

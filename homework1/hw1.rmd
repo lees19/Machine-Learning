@@ -1,0 +1,145 @@
+---
+title: 'Homework #1'
+author: "Sunny Lee"
+date: '2021-02-03'
+output:
+  pdf_document: default
+  
+header-includes:
+- \newcommand{\benum}{\begin{enumerate}}
+- \newcommand{\eenum}{\end{enumerate}}
+---
+
+1.
+a) Regression, and we are interested in infering. $n = 500, p = 4$.
+  
+b) Classification, we are trying to predict if our product will fail or succeed, interested in prediction, $n = 20, p = 13$ 
+  
+c) Regression as we are trying to predict the \% change in the US dollar, interested in prediction. $n = 52, p = 4$. 
+
+  
+2. Parametric methods cut down on the possible solutions by assuming the parametric form of $f$. This makes it much easier to train a model, as we are really only trying to estimate the $\beta_p$ not some arbitrary function. However, since we are assuming the form of the function, our model might not fit our data and taking more flexible parametric forms may result in overfitting. Non-parametric methods do not make assumptions about the parametric form of $f$ and thus make them much more versatile than parametric methods. However, because non-parametric methods are so versatile, there needs to be a very large amount of data in order to actually find the form of $f$.
+
+3.
+a)
+i) 3
+ii) 2
+iii) $\sqrt{10}$
+iv) $\sqrt{5}$
+v) $\sqrt{2}$
+vi) $\sqrt{5}$
+
+b) For $K=1$, we predict green, as it is closest to observation 5, which is green with a distance of $\sqrt{2}$.
+
+c) When $K=3$, we find that our new observation point is closest to one red and one green, however there is a tie between one red and one green, so depending on which one of the tied we take    as     our third neightbor, our new prediction can be considered green or red.
+
+
+4.
+a)
+```{r}
+college <- read.csv("College.csv")
+```
+b)
+```{r}
+rownames(college) <- college[,1]
+
+college <- college [,-1]
+```
+c)
+i)
+```{r}
+summary(college)
+```
+ii)
+```{r}
+pairs(college[,2:11])
+```
+iii)
+```{r}
+boxplot(Outstate~Private, data = college)
+```
+iv)
+```{r}
+Elite <- rep("No", nrow(college))
+Elite[college$Top10perc > 50] = "Yes"
+Elite = as.factor(Elite)
+college = data.frame(college, Elite)
+
+summary(college)
+plot(Outstate~Elite, data = college)
+```
+v)
+```{r}
+par(mfrow= c(2,2))
+hist(college[, 2])
+hist(college[, 3])
+hist(college[, 4])
+hist(college[, 5])
+```
+vi)
+```{r}
+#fix(college)
+
+private = subset(college, college$Private == "Yes")
+public = subset(college, college$Private == "No")
+
+summary(private$Top10perc)
+summary(private$Top25perc)
+summary(public$Top10perc)
+summary(public$Top25perc)
+
+```
+From the summary of the Top10perc and Top25perc data, we find that private and public institutions have a similar amount of new students from the 10 and 25 percent of thier high school classes.
+
+5.
+a) They are all numerical values except for name: 
+```{r}
+auto <- read.csv("Auto.csv",header=T,na.strings ="?") 
+auto <- na.omit(auto)
+summary(auto)
+```
+so, everything is quantitative except for name which is qualitative. 
+b) 
+From the summary, we can find the range as it gives a min and max of each quantitative column. 
+```{r}
+summary(auto)
+```
+
+c)
+We can see the mean from the summary, but not the standard deviation. We can find the standard deviation from the sd command and apply it to each column:
+```{r}
+summary(auto)
+
+stddev <- apply(auto[, 1:8], 2, sd)
+stddev
+```
+
+d)
+We can see the mean from the summary, but not the standard deviation. We can find the standard deviation from the sd command and apply it to each column:
+```{r}
+auto1 <- auto[-c(10:85), ]
+summary(auto1)
+
+stddev1 <- apply(auto1[, 1:8], 2, sd)
+stddev1
+```
+
+e)
+Using a boxplot, we find for the most part, that the average mpg for the cars in our dataset goes up the later it came out. We can also fit a linear model to the scatter plot of the mpg vs year in order to see this correlation. 
+```{r}
+boxplot(auto$mpg~auto$year)
+
+fit <- lm(auto$mpg~auto$year)
+plot(auto$mpg~auto$year)
+abline(fit)
+```
+
+f) 
+From the above, we find that there is a correlation between the year and mpg, but other factors also seem to correlate as well. 
+```{r}
+plot(auto$mpg~auto$displacement)
+plot(auto$mpg~auto$weight)
+plot(auto$mpg~auto$horsepower)
+```
+
+From the above 3 graphs, there is a general trend downward in mpg with cars with higher horsepower, displacement and weight. 

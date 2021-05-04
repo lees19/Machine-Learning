@@ -1,0 +1,104 @@
+---
+title: "ML Final Project"
+author: "Sunny Lee"
+date: "4/8/2021"
+output: pdf_document
+---
+
+For our project, we will be reducing the dimensionality of the MNIST handwritten digit dataset and seeing its effects on a neural network and the k-nearest neighbors algorithm. We will be using the built in prcomp function to calculate the principal components and using Tensorflow.Keras to build and train a neural network. This library will also be used to import the dataset. The k-nearest neighbors algorithm will also be using the built in function. To start, we import the dataset and divide the entire matrix by 255, in order to get a matrix of floats between 0 and 1 rather than a matrix of integers between 1 and 255. This dataset also comes as a 3 dimensional matrix, and thus we need to reshape the data into a 2 dimensional matrix. We will do this by taking our 2 dimensional picture of a digit and turning it into a 1 dimensional vector. 
+```{r, message = FALSE, warning = FALSE}
+library(keras)
+library(tensorflow)
+library(dplyr)
+library(class)
+
+mnist <- dataset_mnist()
+mnist$train$x <- mnist$train$x/255
+mnist$test$x <- mnist$test$x/255
+train <- matrix(mnist$train$x, 60000, 784)
+test <- matrix(mnist$test$x, 10000, 784)
+```
+
+To calculate the principal components we take our train dataset and pass it through the prcomp function. 
+```{r}
+pca.train <- prcomp(train, scale = F)
+```
+
+One way to see how much variation is captured within each principal component is to plot the cumulative sum of the singular values. By plotting the cumulative sum, we can see that the first few hundred principal components make up most of the variation. 
+```{r}
+train_proj <- train %*% pca.train$rotation[, 1:64]
+test_proj <- test %*% pca.train$rotation[, 1:64]
+plot(cumsum(pca.train$sdev))
+abline(h = 90)
+plot(log(pca.train$sdev))
+
+```
+
+For our neural network, we will be using a 3-layer neural network. The input layers will be determined depending on the columns of the training and test datasets. The hidden layer will have 128 nodes and the activation function for those nodes will be the ReLU function. We will be using the sparse categorical crossentropy as our loss function and the adam optimizer. We will train our model for 5 epochs splitting our training data into a 80-20 split for our cross validation. 
+```{r}
+create_nn <- function(train, test) 
+{
+  model <- keras_model_sequential() %>% 
+  layer_flatten(input_shape = c(ncol(train), 1)) %>% 
+  layer_dense(units = 128, activation = "relu") %>% 
+  layer_dense(10, activation = "softmax")
+  
+  model %>%
+  compile(
+    loss = "sparse_categorical_crossentropy",
+    optimizer = "adam",
+    metrics = "accuracy"
+  )
+  
+  model %>% 
+  fit(
+    x = train, y = mnist$train$y, 
+    epochs = 5, 
+    validation_split = .2, 
+    verbose = 2
+  )
+  
+  predictions <- predict(model, test)
+  model %>% 
+    evaluate(test, mnist$test$y, verbose = 0)
+}
+```
+
+Now that we can build and train a neural network, we can train on our rank reduced dataset and our original dataset and compare how long they take to train. 
+```{r}
+#train and test the neural network with the rank reduced from 784 to 64
+start <- proc.time()
+create_nn(train_proj, test_proj)
+proc.time() - start
+```
+
+```{r}
+#train and test the neural network on the original dataset
+start <- proc.time()
+create_nn(train, test)
+proc.time() - start
+```
+From the two times above, even though we only completed 5 epochs, we see a significant increase in time going from our rank reduced dataset to our original dataset while losing a very small test accuracy. We can also see the effects of dimensionality reduction on the k-nearest neighbors algorithm. Since training the k-nearest neighbors algorithm is quite a bit slower than training the above neural network, we will be using a subset of the data for both the train and test sets. 
+```{r}
+size = 1000
+```
+
+Here we see the k-nearest neighbors algorithm on a subset of the original dataset: 
+```{r}
+start <- proc.time()
+knn.pred <- knn(train[1:size, ], test[1:size, ], mnist$train$y[1:size], k = 1)
+table(knn.pred, mnist$test$y[1:size])
+mean(knn.pred == mnist$test$y[1:size])
+proc.time() - start
+```
+
+And again on the same subset except with the dimension of the subset reduced: 
+```{r}
+start <- proc.time() 
+knn.pred.red <- knn(train_proj[1:size, ], test_proj[1:size, ], mnist$train$y[1:size], k = 1)
+table(knn.pred.red, mnist$test$y[1:size])
+mean(knn.pred == mnist$test$y[1:size])
+proc.time() - start
+```
+
+We see both in the neural network and in the k-nearest neighbors that reducing the dimension of the training dataset yields very similar results while significantly reducing the time it takes to train the models. 

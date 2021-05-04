@@ -1,0 +1,20 @@
+---
+title: "examples"
+author: "Sunny Lee"
+date: "2/3/2021"
+output: pdf_document
+---
+
+```{r}
+advert = read.csv("Advertising.csv")
+
+#fix(advert)
+names(advert)
+
+plot(advert$TV, advert$sales)
+myresult = lm(sales~TV, advert)
+abline(myresult, col = "red")
+
+summary(myresult)
+```
+

@@ -1,0 +1,67 @@
+---
+title: "Worksheet6"
+author: "Sunny Lee"
+date: "3/5/2021"
+output: pdf_document
+---
+
+1)
+```{r}
+library(ISLR)
+attach(Wage)
+#?Wage
+```
+
+2)
+```{r}
+library(tree)
+
+```
+
+3)
+```{r}
+#?tree
+#?cv.tree
+```
+
+4)
+```{r}
+tree.wage <- tree(wage~., Wage)
+```
+
+5)
+```{r}
+summary(tree.wage)
+plot(tree.wage)
+text(tree.wage, pretty = 0)
+```
+
+6)
+```{r}
+#?Wage
+```
+From the summary and the pretty tree construction, we find that logwage is the only predictor which was used in our tree. This is because logwage is the log transformation of the wage Which will force wage and logwage to have high collinearity. 
+
+7)
+```{r}
+tree.wage1 <- tree(wage~.-logwage, Wage)
+summary(tree.wage1)
+plot(tree.wage1)
+text(tree.wage1, pretty = 0)
+```
+
+8) 
+```{r}
+cv.wage <- cv.tree(tree.wage)
+plot(cv.wage$size, cv.wage$dev, type = 'b')
+```
+From the plot above, we seem to have a pretty good downsizing of dev each time we add a new node up to 6. Between 6 and 7 however, there seems to be minimal difference between dev = 6 and dev = 7. 
+
+9)
+```{r}
+tree.education <- tree(education~.-logwage, Wage)
+summary(tree.education) 
+plot(tree.education)
+text(tree.education, pretty = 0 )
+```
+From the tree above, we find that wage is the most significant predictor, as our tree is split only based on the wage variable. 

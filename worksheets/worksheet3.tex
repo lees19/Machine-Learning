@@ -1,0 +1,35 @@
+\documentclass[12pt]{exam}
+\firstpageheader{Math 4050}{Worksheet \#2}{Name: Sunny Lee}
+\usepackage{amsfonts}
+\usepackage{amsmath}
+\usepackage{amssymb, graphicx, enumerate, mathrsfs}
+\begin{document}
+
+
+\newcommand{\dd}{\textrm{d}}
+\newcommand{\NN}{\mathbb N}
+\newcommand{\CC}{\mathbb C}
+\newcommand{\QQ}{\mathbb Q}
+\newcommand{\ZZ}{\mathbb Z}
+\newcommand{\RR}{\mathbb R}
+\newcommand{\proofdone}{\hfill $\square$}
+
+$f(x) = \frac{e^x}{1+e^x}$
+\begin{enumerate}
+    \item $\lim_{x\rightarrow \infty} f(x) = \lim_{x\rightarrow \infty} \frac{e^x}{1+e^x}$ 
+    By L'opital's rule: 
+    $\lim_{x\rightarrow \infty} \frac{e^x}{1+e^x} = \lim_{x\rightarrow \infty} \frac{e^x}{e^x} = 1$
+    Thus, the limit is 1. 
+    
+    \item $\lim_{x\rightarrow -\infty} \frac{e^x}{1+e^x}$ If we plug in negative, 
+    we find that the equation looks like: $\lim_{x\rightarrow \infty} \frac{\frac{1}{e^x}}{1+\frac{1}{e^x}}$
+    and as this equation goes to infinity, $\frac{1}{e^x}$ is going to go to zero. Thus, 
+    $\lim_{x\rightarrow -\infty} \frac{e^x}{1+e^x} = \frac{0}{1 + 0} = 0$
+
+    \item The derivative of $f$ is $\frac{e^x}{e^{2x} + 2e^x + 1}$ Since $e^x$ is never negative, 
+    we can conclude that the numerator is never negative, and for the same reason, the denominator 
+    is not negative, as we are adding only positive numbers. 
+\end{enumerate}
+
+
+\end{document}

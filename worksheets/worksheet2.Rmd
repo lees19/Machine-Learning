@@ -1,0 +1,47 @@
+---
+title: "Worksheet #2"
+author: "Sunny Lee"
+date: "1/29/2021"
+output: pdf_document
+---
+
+1.
+```{r}
+heart <- read.csv("Heart.csv")
+```
+
+2.
+```{r}
+fix(heart)
+```
+
+3. Just one called chest pain, which are strings
+
+4. 303
+
+5.
+```{r}
+cat(sprintf("Mean: %.2f\n", mean(heart$Age)))
+
+cat(sprintf("Standard Deviation: %.2f\n", sd(heart$Age)))
+```
+
+6. 
+```{r}
+cat(sprintf("Mean: %.2f\n", mean(heart$Chol)))
+
+cat(sprintf("Standard Deviation: %.2f\n", sd(heart$Chol)))
+```
+
+7. 
+```{r}
+pdf("Figure.pdf")
+plot(heart$Chol, heart$Age)
+dev.off()
+```
+
+8.
+```{r} 
+
+hist(heart$Age)
+```

@@ -1,0 +1,35 @@
+---
+title: "worksheet9"
+author: "Sunny Lee"
+date: "3/31/2021"
+output: pdf_document
+---
+
+1) 
+If we let each of the rows of our weight matrix to be the binary representation of the number in base 10, we obtain the correct weights for our conversion from base 10 to binary. 
+```{r}
+decimals <- c(0, 1, 2, 3, 4, 5, 6, 7, 8, 9)
+m <- sapply(decimals,function(x){ as.integer(intToBits(x))})
+m <- matrix(t(m[1:4, ]), nrow = 10)
+
+one <- matrix(0, 10)
+one[1] <- 1
+
+t(one) %*% m
+```
+We can check the solution to every single digit by making a 10 by 10 identity matrix and multiplying that matrix through our weights: 
+```{r}
+diag(10) %*% m
+```
+and we see each digit comes up in order. However, if we are applying something like a logistic regression activation function, we would prefer the zeros to be quite a bit lower than zero and the ones to be quite a lot higher than zero. We can change our weights such that our zeros are -10 and our ones are 10 to make good use of our activation function: 
+```{r}
+m[m == 0] = -10
+m[m == 1] = 10
+
+one <- matrix(0, 10)
+one[1] <- 1
+
+1/(1+ exp(-t(one) %*% m))
+
+1/(1+ exp(-diag(10) %*% m))
+```

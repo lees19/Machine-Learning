@@ -1,0 +1,67 @@
+---
+title: "homework7"
+author: "Sunny Lee"
+date: "3/30/2021"
+output:
+  pdf_document: default
+---
+
+10) 
+a)
+```{r}
+set.seed(2)
+x <- matrix(rnorm(20*3*50, mean=0, sd=0.001), ncol=50)
+x[1:20, 2] <- 1
+x[21:40, 1] <- 2
+x[21:40, 2] <- 2
+x[41:60, 1] <- 1
+```
+
+b)
+```{r}
+pca.out <- prcomp(x)
+#summary(pca.out)
+plot(pca.out$x[, 1], pca.out$x[, 2], col = c("red", "green", "blue"), pch = 19)
+
+```
+
+c)
+```{r}
+km.out3 <- kmeans(x, 3, nstart = 20)
+table(km.out3$cluster, c(rep(1,20), rep(2,20), rep(3,20)))
+```
+
+From our table, we see that each of the classifications have exactly 20 observations. Though they are "misclassified", this table will depend on where the centroids are initialized. What is important is that our k-means clustering has correctly separated our data into three clusters. 
+
+d)
+```{r}
+km.out2 <- kmeans(x, 2, nstart = 20)
+table(km.out2$cluster, c(rep(1,20), rep(2,20), rep(3,20)))
+```
+Using 2 clusters, we see that our data is still clustered quite well, but two of the clusters from the 3 have combined into 1 cluster. 
+
+e)
+```{r}
+km.out4 <- kmeans(x, 4, nstart = 20)
+table(km.out4$cluster, c(rep(1,20), rep(2,20), rep(3,20)))
+
+```
+Using 4 clusters, we see that we still have good separation, but now one of the clusters has been effectively split into two groups. 
+
+f) 
+```{r}
+km.pca <- kmeans(pca.out$x[, 1:2], 3, nstart = 20)
+table(km.pca$cluster, c(rep(1,20), rep(2,20), rep(3,20)))
+```
+Running our k-means clustering on the Principal Components, we still see each cluster has exactly 20 observations, meaning our k-means clustering was just as effective at clustering the data from the principal components as it was from the whole data set. This means instead of running k-means clustering on a matrix of size 60x50, we can run our clustering algorithm on a matrix of size 60x2, cutting computational costs. 
+
+g) 
+```{r}
+km.out.scale <- kmeans(scale(x), 3, nstart = 20)
+table(km.out.scale$cluster, c(rep(1,20), rep(2,20), rep(3,20)))
+```
+From the table above, we see many misclassifications. The data does not seem to be split into the three groups we made, and the three groups seem to have a mixture of each class. This makes sense since when we scale our observations, we bring everything closer together, making it harder for the centroids to split away from each other. 
+```{r}
+plot(x[, 1:2])
+plot(scale(x[, 1]), scale(x[, 2]))
+```

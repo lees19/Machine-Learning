@@ -1,0 +1,79 @@
+---
+title: "homework6"
+author: "Sunny Lee"
+date: "3/23/2021"
+output: pdf_document
+---
+
+7)
+```{r}
+#test
+?plot.svm
+```
+
+```{r}
+library(e1071)
+auto <- read.csv("Auto.csv")
+
+```
+
+a)
+```{r}
+library(ISLR)
+gas.med = median(Auto$mpg)
+new.var = ifelse(Auto$mpg > gas.med, 1, 0)
+Auto$mpg1 = as.factor(new.var)
+```
+
+b)
+```{r}
+tune.lin <- tune(svm, mpg1 ~ ., data = Auto, kernel = "linear", ranges = list(cost = c(0.01, 0.1, 1, 5, 10, 100)))
+summary(tune.lin)
+```
+From the errors we get above, we find that the svm does best at cost = 1 as it has the lowest error and going lower or higher increases the CV error.  
+
+c)
+```{r}
+tune.rad <- tune(svm, mpg1~., data = Auto, kernel = "radial", ranges = list(cost = c(0.1, 1, 5, 10), gamma = c(.01, .1, 1, 5, 10, 100)) )
+summary(tune.rad)
+```
+
+```{r}
+tune.pol <- tune(svm, mpg1~., data = Auto, kernel = "polynomial", ranges = list(cost = c(0.1, 1, 5, 10), degree = c(2, 3, 4)) )
+summary(tune.pol)
+```
+Looking at the summaries for the radial and polynomial tuned svms, we find a cost of 10 and a gamma of .01 works best for the radial and a cost of 10 and a degree of 2 works best for the polynomial svm. This means we must allow for more misclassifications for both our radial and polynomial svms. Comparing the errors for the cross validations of the three svms, we also see that the linear model has the lowest cross validation error, and thus we should see our linear model perform the best out of the three svms. 
+
+d) 
+```{r}
+svm.lin <- tune.lin$best.model
+svm.pol <- tune.pol$best.model
+svm.rad <- tune.rad$best.model
+
+plot(svm.lin, Auto, mpg~cylinders)
+plot(svm.lin, Auto, mpg~displacement)
+plot(svm.lin, Auto, mpg~horsepower)
+plot(svm.lin, Auto, mpg~weight)
+plot(svm.lin, Auto, mpg~acceleration)
+plot(svm.lin, Auto, mpg~year)
+```
+
+```{r}
+plot(svm.rad, Auto, mpg~cylinders)
+plot(svm.rad, Auto, mpg~displacement)
+plot(svm.rad, Auto, mpg~horsepower)
+plot(svm.rad, Auto, mpg~weight)
+plot(svm.rad, Auto, mpg~acceleration)
+plot(svm.rad, Auto, mpg~year)
+```
+
+```{r}
+plot(svm.pol, Auto, mpg~cylinders)
+plot(svm.pol, Auto, mpg~displacement)
+plot(svm.pol, Auto, mpg~horsepower)
+plot(svm.pol, Auto, mpg~weight)
+plot(svm.pol, Auto, mpg~acceleration)
+plot(svm.pol, Auto, mpg~year)
+```
+
+From the graphs above, we see our prediction was right. The linear model is splitting the data quite well. However, the graphs from the radial and polynomial models we see the whole dataset is being classified as one class, meaning our svms are not even classifying at all. Thus, our radial and polynomial svms are useless and the only one we can use is the linear kernel. 
